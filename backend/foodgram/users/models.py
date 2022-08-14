@@ -9,6 +9,8 @@ class User(DefaultUser):
     class Meta:
         proxy = True
         ordering = ('-date_joined',)
+        verbose_name = _('Пользователь')
+        verbose_name_plural = _('Пользователи')
 
 
 class Subscription(models.Model):

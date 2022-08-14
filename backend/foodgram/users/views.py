@@ -5,7 +5,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.mixins import CreateModelMixin
 
 from rest_framework.permissions import (
-    IsAuthenticated, IsAuthenticatedOrReadOnly
+    IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 )
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -20,6 +20,11 @@ class UsersViewSet(CreateModelMixin, ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve', 'create'):
+            return AllowAny(),
+        return super().get_permissions()
 
     @action(methods=['GET'], detail=False, url_path='me', url_name='me')
     def me(self, request):
