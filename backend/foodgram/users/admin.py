@@ -17,6 +17,7 @@ class UserAdmin(admin.ModelAdmin):
             obj.set_password(obj.password)
         obj.save()
 
+
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     pass
