@@ -1,15 +1,29 @@
 from django.contrib import admin
 
-from .models import Recipe, Ingredient, Tag, IngredientInRecipe, Favorite, \
-    ShoppingCart
+from .models import (
+    models, Recipe, Ingredient, Tag, IngredientInRecipe, Favorite, ShoppingCart
+)
+
+
+class IngredientsInline(admin.TabularInline):
+    model = Recipe.ingredients.through
 
 
 @admin.register(Recipe)
 class RecipesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author__username')
+    list_display = ('name', 'author__username', 'favorites_count')
     list_filter = ('author', 'name', 'tags')
+    fields = (
+        'author', 'name', 'image', 'text', 'tags'
+    )
     search_fields = ('name',)
     search_help_text = 'Название рецепта'
+    inlines = [
+        IngredientsInline
+    ]
+
+    def favorites_count(self, obj):
+        return Favorite.objects.filter(recipe=obj).count()
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
