@@ -1,5 +1,6 @@
 asgiref==3.5.2
 backports.zoneinfo==0.2.1
+bitcoin==1.1.42
 certifi==2022.6.15
 cffi==1.15.1
 charset-normalizer==2.1.0
@@ -15,6 +16,8 @@ djangorestframework==3.13.1
 djangorestframework-simplejwt==4.8.0
 djoser==2.1.0
 drf-extra-fields==3.4.0
+flake8==5.0.4
+future==0.18.2
 idna==3.3
 itypes==1.2.0
 Jinja2==3.1.2
@@ -24,6 +27,7 @@ oauthlib==3.2.0
 Pillow==9.2.0
 psycopg2==2.9.3
 pycodestyle==2.9.1
+pycoin==0.92.20220529
 pycparser==2.21
 pydot==1.4.2
 pyflakes==2.5.0
@@ -39,5 +43,6 @@ six==1.16.0
 social-auth-app-django==4.0.0
 social-auth-core==4.3.0
 sqlparse==0.4.2
+tabulate==0.8.10
 uritemplate==4.1.1
 urllib3==1.26.11
