@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from django.conf import settings
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -41,7 +42,11 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
 
 
 class RecipesViewSet(ModelViewSet):
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.select_related(
+        'author'
+    ).prefetch_related(
+        'tags', 'ingredientinrecipe_set'
+    ).all()
     serializer_class = RecipeViewSerializer
     permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
@@ -51,6 +56,14 @@ class RecipesViewSet(ModelViewSet):
         if self.action in ('create', 'partial_update', 'destroy'):
             return RecipeWriteSerializer
         return super().get_serializer_class()
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
 
     @action(methods=['POST'], detail=True, url_name='favorite',
             url_path='favorite', permission_classes=(IsAuthenticated,))
