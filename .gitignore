@@ -133,6 +133,7 @@ dmypy.json
 
 # Media objects
 media/
+foodgram_media/
 
 # Frontend
 
