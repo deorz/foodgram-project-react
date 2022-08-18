@@ -1,17 +1,22 @@
 import os
 from pathlib import Path
 
-from dotenv import find_dotenv, load_dotenv
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-load_dotenv(find_dotenv())
 
 DEBUG = True
 
+if DEBUG:
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '84.201.161.35', 'backend']
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost', 'http://127.0.0.1',
+    'http://84.201.161.35', 'http://backend'
+]
 
 # Application definition
 
@@ -45,8 +50,8 @@ ROOT_URLCONF = 'foodgram.urls'
 
 # Media files
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/foodgram_media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'foodgram_media')
 
 TEMPLATES = [
     {
@@ -73,10 +78,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('USERNAME'),
-        'PASSWORD': os.getenv('PASSWORD'),
-        'HOST': os.getenv('HOST'),
-        'PORT': os.getenv('PORT'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -128,7 +133,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'foodgram_static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'foodgram_static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
