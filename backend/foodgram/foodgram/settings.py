@@ -51,7 +51,7 @@ ROOT_URLCONF = 'foodgram.urls'
 # Media files
 
 MEDIA_URL = '/foodgram_media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'foodgram_media')
+MEDIA_ROOT = Path(BASE_DIR, 'foodgram_media')
 
 TEMPLATES = [
     {
@@ -135,9 +135,13 @@ USE_TZ = True
 
 STATIC_URL = 'foodgram_static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'foodgram_static')
+STATIC_ROOT = Path(BASE_DIR, 'foodgram_static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Data files
+
+DATA_ROOT = Path(BASE_DIR).resolve().parent.joinpath('data')
