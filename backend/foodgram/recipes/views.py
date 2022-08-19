@@ -151,9 +151,7 @@ class RecipesViewSet(ModelViewSet):
         pdfmetrics.registerFont(
             TTFont(
                 'SF-Pro',
-                Path(settings.BASE_DIR).resolve().parent.parent.joinpath(
-                    'data/fonts/SF-Pro.ttf'
-                ), 'UTF-8'
+                Path(settings.DATA_ROOT, 'fonts/SF-Pro.ttf'), 'UTF-8'
             )
         )
         response = HttpResponse(content_type='application/pdf')
