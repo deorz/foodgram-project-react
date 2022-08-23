@@ -7,6 +7,8 @@ from .models import Subscription, User
 class UserAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'first_name', 'last_name', 'is_staff')
     list_filter = ('email', 'username')
+    search_fields = ('username',)
+    search_help_text = 'Имя пользователя'
 
     def save_model(self, request, obj, form, change):
         if obj.pk:
@@ -20,4 +22,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('subscriber', 'author')
+    list_filter = ('subscriber', 'author')
+    search_fields = ('subscriber__username',)
+    search_help_text = 'Логин подписчика'
