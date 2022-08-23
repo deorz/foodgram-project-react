@@ -51,7 +51,7 @@ class RecipeViewSerializer(serializers.ModelSerializer):
     def get_ingredients(self, obj):
         ingredients = IngredientInRecipe.objects.select_related(
             'ingredient', 'recipe'
-        ).filter(recipe=obj).all()
+        ).filter(recipe=obj)
         return IngredientInRecipeSerializer(
             ingredients, context=self.context, many=True
         ).data
@@ -86,25 +86,42 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
-        ingredients = self.initial_data.get('ingredients')
-        if not ingredients:
+        ingredients = attrs.get('ingredients')
+        tags = attrs.get('tags')
+        if not ingredients or not tags:
+            msg = 'ингредиент' if not ingredients else 'тэг'
             raise ValidationError(
-                {'error': 'Для рецепта необходим хотя бы один ингредиент'}
+                {'error': 'Для рецепта необходим хотя бы один %s' % msg}
             )
-        ingredient_list = set()
+        validated_ingredients = set()
         for ingredient_ in ingredients:
-            ingredient = get_object_or_404(Ingredient, id=ingredient_['id'])
-            ingredient_list.add(ingredient)
+            ingredient = get_object_or_404(
+                Ingredient, id=ingredient_['ingredient']['id']
+            )
+            if ingredient.id in validated_ingredients:
+                raise ValidationError(
+                    {'error': 'Ингредиенты в рецепте должны быть уникальны'}
+                )
+            validated_ingredients.add(ingredient.id)
             min_value_validator(int(ingredient_['amount']))
-        attrs['ingredients'] = ingredients
+        validated_tags = set()
+        for tag_ in tags:
+            if tag_.id in validated_tags:
+                raise ValidationError(
+                    {'error': 'Тэги рецепта должны быть уникальными'}
+                )
+            validated_tags.add(tag_.id)
         return attrs
 
     def create_ingredients(self, ingredients, recipe):
-        for inredient in ingredients:
-            IngredientInRecipe.objects.create(
-                ingredient_id=inredient['id'], recipe=recipe,
-                amount=inredient['amount']
-            )
+        ingr_objects = [
+            IngredientInRecipe(
+                ingredient_id=ingredient['ingredient']['id'],
+                recipe=recipe,
+                amount=ingredient['amount']
+            ) for ingredient in ingredients
+        ]
+        IngredientInRecipe.objects.bulk_create(ingr_objects)
 
     def create(self, validated_data):
         author = self.context['request'].user
@@ -116,7 +133,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        print(validated_data)
         instance.tags.clear()
         IngredientInRecipe.objects.filter(recipe=instance).delete()
         tags = validated_data.pop('tags')
