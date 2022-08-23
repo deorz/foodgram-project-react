@@ -10,12 +10,12 @@ users_router = DefaultRouter()
 users_router.register(r'users', UsersViewSet)
 
 urlpatterns = [
-    path('api/auth/', include('djoser.urls')),
-    path('api/auth/', include('djoser.urls.authtoken')),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
     path(
-        'api/users/subscriptions/',
+        'users/subscriptions/',
         SubscriptionsListView.as_view(),
         name='subscriptions'
     ),
-    path('api/', include(users_router.urls))
+    path('', include(users_router.urls))
 ]

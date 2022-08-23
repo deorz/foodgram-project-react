@@ -11,5 +11,5 @@ recipes_router.register(r'ingredients', IngredientsViewSet)
 recipes_router.register(r'recipes', RecipesViewSet)
 
 urlpatterns = [
-    path('api/', include(recipes_router.urls))
+    path('', include(recipes_router.urls))
 ]
