@@ -9,7 +9,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from utils.functions import get_object, check_exists
+from utils.functions import get_object, check_exists_and_create_or_delete
 from .models import User, Subscription
 from .serializers import (
     UserSerializer, UserSetPasswordSerializer, SubscriptionSerializer
@@ -52,17 +52,14 @@ class UsersViewSet(CreateModelMixin, ReadOnlyModelViewSet):
         subscriber, author = get_object(
             request=request, object_model=User, pk=pk
         )
-        check_exists(
-            object_model=Subscription, exists=True,
-            msg='Вы уже подписаны на этого пользователя',
-            subscriber=subscriber, author=author
-        )
         if subscriber.id == author.id:
             return Response(
                 {'error': 'Нельзя подписаться на самого себя'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        subscription = Subscription.objects.create(
+        subscription = check_exists_and_create_or_delete(
+            object_model=Subscription, exists=True,
+            msg='Вы уже подписаны на этого пользователя',
             subscriber=subscriber, author=author
         )
         return Response(SubscriptionSerializer(
@@ -74,19 +71,16 @@ class UsersViewSet(CreateModelMixin, ReadOnlyModelViewSet):
         subscriber, author = get_object(
             request=request, object_model=User, pk=pk
         )
-        check_exists(
-            object_model=Subscription, exists=True,
-            msg='Вы не были подписаны на этого пользователя',
-            subscriber=subscriber, author=author
-        )
         if subscriber.id == author.id:
             return Response(
                 {'error': 'Нельзя отписаться от самого себя'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        Subscription.objects.filter(
+        check_exists_and_create_or_delete(
+            object_model=Subscription, exists=False,
+            msg='Вы не были подписаны на этого пользователя',
             subscriber=subscriber, author=author
-        ).delete()
+        )
         return Response(
             {'info': 'Вы успешно отписались от пользователя'},
             status=status.HTTP_204_NO_CONTENT

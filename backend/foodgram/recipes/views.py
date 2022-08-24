@@ -17,7 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 
-from utils.functions import check_exists, get_object
+from utils.functions import check_exists_and_create_or_delete, get_object
 from utils.permissions import IsAuthorOrReadOnly
 from utils.filters import IngredientSearchFilter, RecipeFilterSet
 from users.serializers import RecipeMinifiedSerializer
@@ -66,12 +66,11 @@ class RecipesViewSet(ModelViewSet):
             url_path='favorite', permission_classes=(IsAuthenticated,))
     def favorite(self, request, pk=None):
         user, recipe = get_object(request=request, object_model=Recipe, pk=pk)
-        check_exists(
+        check_exists_and_create_or_delete(
             object_model=Favorite, exists=True,
             msg='Рецепт уже есть в избранном',
             user=user, recipe=recipe
         )
-        Favorite.objects.create(user=user, recipe=recipe)
         serializer = RecipeMinifiedSerializer(
             recipe, context=self.get_serializer_context()
         )
@@ -80,12 +79,11 @@ class RecipesViewSet(ModelViewSet):
     @favorite.mapping.delete
     def delete_favorite(self, request, pk=None):
         user, recipe = get_object(request=request, object_model=Recipe, pk=pk)
-        check_exists(
+        check_exists_and_create_or_delete(
             object_model=Favorite, exists=False,
             msg='Рецепт не был добавлен в избранное',
             user=user, recipe=recipe
         )
-        Favorite.objects.filter(user=user, recipe=recipe).delete()
         return Response(
             {'info': 'Рецепт успешно удалён из избранного'},
             status=status.HTTP_204_NO_CONTENT
@@ -95,12 +93,11 @@ class RecipesViewSet(ModelViewSet):
             url_name='shopping_cart', permission_classes=(IsAuthenticated,))
     def shopping_cart(self, request, pk=None):
         user, recipe = get_object(request=request, object_model=Recipe, pk=pk)
-        check_exists(
+        check_exists_and_create_or_delete(
             object_model=ShoppingCart, exists=True,
             msg='Рецепт уже есть в списке покупок',
             user=user, recipe=recipe
         )
-        ShoppingCart.objects.create(user=user, recipe=recipe)
         serializer = RecipeMinifiedSerializer(
             recipe, context=self.get_serializer_context()
         )
@@ -109,12 +106,11 @@ class RecipesViewSet(ModelViewSet):
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk=None):
         user, recipe = get_object(request=request, object_model=Recipe, pk=pk)
-        check_exists(
-            object_model=ShoppingCart, exists=True,
+        check_exists_and_create_or_delete(
+            object_model=ShoppingCart, exists=False,
             msg='Рецепт не был добавлен в список покупок',
             user=user, recipe=recipe
         )
-        ShoppingCart.objects.filter(user=user, recipe=recipe).delete()
         return Response(
             {'info': 'Рецепт успешно удалён из списка покупок'},
             status=status.HTTP_204_NO_CONTENT
