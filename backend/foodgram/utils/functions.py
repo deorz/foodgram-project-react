@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 
@@ -10,16 +11,16 @@ def get_object(request, object_model, pk):
     return user, obj
 
 
-def check_exists(object_model, exists, msg, **kwargs):
+def check_exists_and_create_or_delete(object_model, exists, msg, **kwargs):
     if exists:
-        if object_model.objects.filter().exists():
-            return Response(
-                {'error': msg},
-                status=status.HTTP_400_BAD_REQUEST
+        if object_model.objects.filter(**kwargs).exists():
+            raise ValidationError(
+                {'error': msg}
             )
+        return object_model.objects.create(**kwargs)
     else:
         if not object_model.objects.filter(**kwargs).exists():
-            return Response(
+            raise ValidationError(
                 {'error': msg},
-                status=status.HTTP_400_BAD_REQUEST
             )
+        object_model.objects.filter(**kwargs).delete()
