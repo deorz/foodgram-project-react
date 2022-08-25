@@ -22,6 +22,7 @@ jobs:
 
       - name: test with flake8 and pytest
         run: |
+          ls
           python -m flake8 --config=setup.cfg
           export SECRET_KEY=${{ secrets.SECRET_KEY }}
           pytest
