@@ -63,7 +63,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          source: "infra/nginx.conf, infra/docker-compose.yaml"
+          source: "infra/nginx.conf, infra/docker-compose.yml"
           target: "."
 
       - name: executing remote ssh commands to deploy
