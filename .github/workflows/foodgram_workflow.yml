@@ -45,3 +45,35 @@ jobs:
           context: backend
           push: true
           tags: deorz/yandex_foodgram:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_push_to_docker_hub
+    if:
+      contains('
+      refs/heads/main
+      refs/heads/master
+      ', github.ref)
+    steps:
+      - uses: actions/checkout@v2
+      - name: copy nginx and docker-compose to remote server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          source: "infra/nginx.conf, infra/docker-compose.yaml"
+          target: "infra"
+
+      - name: executing remote ssh commands to deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          script: |
+            cd infra/
+            sudo docker pull deorz/yandex_foodgram:latest
+            sudo docker-compose up --force-recreate -d backend
