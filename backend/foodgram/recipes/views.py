@@ -150,7 +150,7 @@ class RecipesViewSet(ModelViewSet):
                 )
             )
             if height <= 50:
-                height = 850
+                height = 800
                 file.showPage()
                 file.setFont('SF-Pro', size=16)
             height -= 25
